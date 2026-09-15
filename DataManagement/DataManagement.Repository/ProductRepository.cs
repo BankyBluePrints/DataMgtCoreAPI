@@ -29,6 +29,10 @@ namespace DataManagement.Repository
 
     public class ProductRepository : BaseRepository, IRepository<Product>
     {
+        public ProductRepository(string connectionString) : base(connectionString)
+        {
+        }
+
         public void Add(Product entity)
         {
             throw new NotImplementedException();
@@ -49,7 +53,7 @@ namespace DataManagement.Repository
                 new CustomPropertyTypeMap(typeof(Product), (type, columnName) => type.GetProperty(columnMap[columnName])));
 
            List<Product> products = SqlMapper.Query<Product>(
-               con, "select * from Products", commandType: Text).ToList();
+               Connection, "select * from Products", commandType: Text).ToList();
 
             return products;
         }

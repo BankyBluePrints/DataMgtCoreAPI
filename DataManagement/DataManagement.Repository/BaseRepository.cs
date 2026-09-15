@@ -1,23 +1,22 @@
-﻿using System;
+using System;
 using System.Data;
 using Microsoft.Data.SqlClient;
 
-namespace DataManagement.Repository
-{
-    public class BaseRepository: IDisposable
-    {
-       protected IDbConnection con;
-        public BaseRepository()
-        {
-            // TODO: This should be injected via dependency injection from configuration
-            // Connection string should match the one in appsettings.json
-            string connectionString = "Data Source=BANKEPC;Initial Catalog=DataManagement;Integrated Security=True";
-            con = new SqlConnection(connectionString);
-        }
+namespace DataManagement.Repository;
 
-        public void Dispose()
-        {
-            con?.Dispose();
-        }
+public abstract class BaseRepository : IDisposable
+{
+    protected readonly IDbConnection Connection;
+
+    protected BaseRepository(string connectionString)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        Connection = new SqlConnection(connectionString);
+    }
+
+    public void Dispose()
+    {
+        Connection.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

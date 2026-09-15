@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/DataManagement/src/DataManagement.WebAPI/bin/Debug/netcoreapp1.0/DataManagement.API.dll",
+            "program": "${workspaceFolder}/DataManagement/src/DataManagement.WebAPI/bin/Debug/net8.0/DataManagement.API.dll",
             "args": [],
             "cwd": "${workspaceFolder}/DataManagement/src/DataManagement.WebAPI",
             "stopAtEntry": false,
