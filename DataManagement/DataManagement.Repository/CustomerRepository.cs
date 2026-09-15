@@ -76,7 +76,7 @@ namespace DataManagement.Repository
                 DynamicParameters parameters = new DynamicParameters();           
                 parameters.Add("@CustomerID", id);
                 return SqlMapper.Query<Customer>(
-                    con,
+                    Connection,
                     "GetCustomerById",
                     parameters,
                     commandType: StoredProcedure
