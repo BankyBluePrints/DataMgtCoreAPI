@@ -10,6 +10,10 @@ namespace DataManagement.Repository
 {
     public class CustomerRepository:BaseRepository, IRepository<Customer>
     {
+        public CustomerRepository(string connectionString) : base(connectionString)
+        {
+        }
+
         public void Add(Customer entity)
         {
             try
@@ -21,7 +25,7 @@ namespace DataManagement.Repository
                 parameters.Add("@CustomerName", entity.CustomerName);
                 parameters.Add("@CustomerEmail", entity.CustomerEmail);
                 parameters.Add("@CustomerMobile", entity.CustomerMobile);
-                SqlMapper.Execute(con, "AddCustomer", param: parameters, commandType:StoredProcedure);
+                SqlMapper.Execute(Connection, "AddCustomer", param: parameters, commandType:StoredProcedure);
             }
             catch (Exception ex)
             {
@@ -39,7 +43,7 @@ namespace DataManagement.Repository
 
                 DynamicParameters parameters = new DynamicParameters();
                 parameters.Add("@CustomerId", id);
-                SqlMapper.Execute(con, "DeleteCustomer", param: parameters, commandType:StoredProcedure);
+                SqlMapper.Execute(Connection, "DeleteCustomer", param: parameters, commandType:StoredProcedure);
             }
             catch (Exception ex)
             {
@@ -52,7 +56,7 @@ namespace DataManagement.Repository
         {
             try
             {
-                IList<Customer> customerList = SqlMapper.Query<Customer>(con, "GetAllCustomer", commandType:StoredProcedure).ToList();
+                IList<Customer> customerList = SqlMapper.Query<Customer>(Connection, "GetAllCustomer", commandType:StoredProcedure).ToList();
                 return customerList;
             }
             catch (Exception ex)
@@ -97,7 +101,7 @@ namespace DataManagement.Repository
                 parameters.Add("@CustomerName", entity.CustomerName);
                 parameters.Add("@CustomerEmail", entity.CustomerEmail);
                 parameters.Add("@CustomerMobile", entity.CustomerMobile);
-                SqlMapper.Execute(con, "UpdateCustomer", param: parameters, commandType: StoredProcedure);
+                SqlMapper.Execute(Connection, "UpdateCustomer", param: parameters, commandType: StoredProcedure);
             }
             catch (Exception ex)
             {

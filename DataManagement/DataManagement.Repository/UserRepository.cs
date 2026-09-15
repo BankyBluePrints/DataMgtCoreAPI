@@ -11,6 +11,10 @@ namespace DataManagement.Repository
 {
     public class UserRepository : BaseRepository, IUserRepository
     {
+        public UserRepository(string connectionString) : base(connectionString)
+        {
+        }
+
         public bool AddUser(User user)
         {
             try
@@ -27,7 +31,7 @@ namespace DataManagement.Repository
                 parameters.Add("@TwitterUrl", user.TwitterUrl);
                 parameters.Add("@PersonalWebUrl", user.PersonalWebUrl);
 
-                SqlMapper.Execute(con, "AddUser", param: parameters, commandType: StoredProcedure);
+                SqlMapper.Execute(Connection, "AddUser", param: parameters, commandType: StoredProcedure);
                 return true;
             }
             catch (Exception ex)
@@ -46,7 +50,7 @@ namespace DataManagement.Repository
 
                 DynamicParameters parameters = new DynamicParameters();
                 parameters.Add("@UserId", userId);
-                SqlMapper.Execute(con, "DeleteUser", param: parameters, commandType: StoredProcedure);
+                SqlMapper.Execute(Connection, "DeleteUser", param: parameters, commandType: StoredProcedure);
                 return true;
             }
             catch (Exception ex)
@@ -56,7 +60,7 @@ namespace DataManagement.Repository
             }
         }
 
-        public IList<User> GetAllUser() => SqlMapper.Query<User>(con, "GetAllUsers", commandType: StoredProcedure).ToList();
+        public IList<User> GetAllUser() => SqlMapper.Query<User>(Connection, "GetAllUsers", commandType: StoredProcedure).ToList();
         public User GetUserById(int userId)
         {
             try
@@ -65,8 +69,8 @@ namespace DataManagement.Repository
                     throw new ArgumentException("User ID must be greater than 0", nameof(userId));
 
                 DynamicParameters parameters = new DynamicParameters();
-                parameters.Add("@CustomerID", userId);
-                return SqlMapper.Query<User>(con, "GetUserById", parameters, commandType: StoredProcedure).FirstOrDefault();
+                parameters.Add("@UserId", userId);
+                return SqlMapper.Query<User>(Connection, "GetUserById", parameters, commandType: StoredProcedure).FirstOrDefault();
             }
             catch (Exception ex)
             {
@@ -93,7 +97,7 @@ namespace DataManagement.Repository
                 parameters.Add("@TwitterUrl", user.TwitterUrl);
                 parameters.Add("@PersonalWebUrl", user.PersonalWebUrl);
 
-                SqlMapper.Execute(con, "UpdateUser", param: parameters, commandType: StoredProcedure);
+                SqlMapper.Execute(Connection, "UpdateUser", param: parameters, commandType: StoredProcedure);
                 return true;
             }
             catch (Exception ex)
@@ -103,25 +107,6 @@ namespace DataManagement.Repository
             }
         }
 
-        public void InsertMultipleUsers()
-        {
-            object myObj = new[] {
-                new { name = "B Narayan", email = "bnarayan.sharma@outlook.com" },
-                new { name = "Manish Sharma", email = "manish.sharma@outlook.com" },
-                new { name = "Rohit Kumar", email = "rohit.kumar@outlook.com" }};
-
-            con.Execute(@"insert Users(UserName, UserEmail) values (@name, @email)", myObj);
-        }
-
-        (List<Customer> customers, List<User> users) GetUsersAndCustomers()
-        {
-            using (var multi = con.QueryMultiple("select * from Customers;select * from Users"))
-            {
-                var customers = multi.Read<Customer>().ToList();
-                var users = multi.Read<User>().ToList();
-                return (customers, users);
-            }
-        }
 
     }
 }

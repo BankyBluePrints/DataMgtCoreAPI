@@ -17,7 +17,7 @@ BEGIN
 
 	SET NOCOUNT ON;
 
- select * from Users where UserId=@UserId;
+ select * from Users where UserId=@UserId and IsDeleted = 0;
 
 END
 

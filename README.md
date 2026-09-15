@@ -1,107 +1,89 @@
 # DataMgtCoreAPI
 
-A comprehensive Data Management project using ASP.NET Core Web API and Dapper ORM with dependency injection, following clean architecture principles.
+An educational ASP.NET Core 8 Web API showing a layered architecture with Dapper, SQL Server,
+repository interfaces, a business layer, dependency injection, and Swagger/OpenAPI.
+
+> **Project status:** maintained reference project. It is suitable for learning and local
+> experimentation, but it is not production-ready. Authentication, authorization, automated
+> tests, complete Product CRUD, database migrations, observability, and deployment hardening
+> are not implemented.
+
+## What is implemented
+
+| Area | Status | Notes |
+| --- | --- | --- |
+| Users | Partial | CRUD endpoints and stored procedures are included. |
+| Customers | Partial | Controller and repository exist; matching SQL setup scripts are not included. |
+| Products | Prototype | List operation exists; create, read-by-ID, update, and delete are placeholders. |
+| API documentation | Implemented | Swagger is enabled in the Development environment. |
+| Automated tests | Not implemented | CI currently verifies restore and compilation only. |
+| Authentication/authorization | Not implemented | Do not expose this API publicly. |
 
 ## Architecture
 
-This project follows a layered architecture pattern:
-
-- **Web API Layer** (`DataManagement.API`): Controllers and HTTP endpoints
-- **Business Logic Layer** (`DataManagement.Business`): Business rules and logic
-- **Repository Layer** (`DataManagement.Repository`): Data access using Dapper ORM
-- **Entity Layer** (`DataManagement.Entities`): Domain models
-- **Interface Layer** (`DataManagement.*.Interfaces`): Contracts and abstractions
-
-## Features
-
-- RESTful API endpoints for User and Customer management
-- Repository pattern with generic interfaces
-- Dependency injection for loose coupling
-- Comprehensive input validation and error handling
-- Proper HTTP status codes and error responses
-- Clean separation of concerns
-
-## Technologies Used
-
-- **.NET Core 1.0** (Web API framework)
-- **Dapper** (Lightweight ORM)
-- **SQL Server** (Database)
-- **Dependency Injection** (Built-in .NET Core DI)
-
-## Project Structure
-
-```
-DataManagement/
-├── src/
-│   └── DataManagement.WebAPI/          # Web API controllers and configuration
-├── DataManagement.Entities/            # Domain models (User, Customer, Product)
-├── DataManagement.Business/            # Business logic implementations
-├── DataManagement.Business.Interfaces/ # Business layer contracts
-├── DataManagement.Repository/          # Data access implementations
-├── DataManagement.Repository.Interfaces/ # Repository contracts
-└── DataManagement.SQL/                 # SQL-related utilities
+```text
+HTTP request
+    -> DataManagement.API
+    -> DataManagement.Business
+    -> DataManagement.Repository
+    -> SQL Server stored procedures
 ```
 
-## API Endpoints
+Projects:
 
-### Users
-- `GET /api/user` - Get all users
-- `GET /api/user/{id}` - Get user by ID
-- `POST /api/user` - Create new user
-- `PUT /api/user/{id}` - Update user
-- `DELETE /api/user/{id}` - Delete user
+- `DataManagement.API`: controllers, dependency registration, configuration, and Swagger.
+- `DataManagement.Business` / `.Interfaces`: user business-service abstraction.
+- `DataManagement.Repository` / `.Interfaces`: Dapper data access.
+- `DataManagement.Entities`: domain/data-transfer models.
+- `DataManagement.SQL`: numbered SQL Server setup scripts.
 
-### Customers
-- `GET /api/customer` - Get all customers
-- `GET /api/customer/{id}` - Get customer by ID
-- `POST /api/customer` - Create new customer
-- `PUT /api/customer/{id}` - Update customer
-- `DELETE /api/customer/{id}` - Delete customer
+## Prerequisites
 
-## Getting Started
+- .NET 8 SDK
+- SQL Server or SQL Server Developer/Express
+- A local connection string with permission to create and use the sample database
 
-### Prerequisites
-- .NET Core SDK 1.0 or later
-- SQL Server
-- Visual Studio 2017+ or VS Code
+## Local setup
 
-### Setup
-1. Clone the repository
-2. Update the connection string in `appsettings.json`
-3. Build the solution: `dotnet build`
-4. Run the API: `dotnet run`
+1. Clone the repository.
+2. Run the numbered scripts in
+   [`DataManagement/DataManagement.SQL/Scripts`](DataManagement/DataManagement.SQL/Scripts)
+   in order. These scripts currently create only the Users schema and procedures.
+3. Supply a connection string without committing credentials. The recommended environment
+   variable is:
 
-### Configuration
+   ```powershell
+   $env:ConnectionStrings__MyConnection="Server=localhost;Database=DataManagement;Trusted_Connection=True;TrustServerCertificate=True"
+   ```
 
-Update the connection string in `src/DataManagement.WebAPI/appsettings.json`:
+   On macOS/Linux:
 
-```json
-{
-  "ConnectionStrings": {
-    "MyConnection": "Server=YOUR_SERVER;Initial Catalog=DataManagement;Integrated Security=True;"
-  }
-}
-```
+   ```bash
+   export ConnectionStrings__MyConnection="Server=localhost;Database=DataManagement;Trusted_Connection=True;TrustServerCertificate=True"
+   ```
 
-## Code Quality Improvements
+4. Restore, build, and run:
 
-This repository includes several enhancements:
+   ```bash
+   dotnet restore DataManagement/DataManagement.sln
+   dotnet build DataManagement/DataManagement.sln --configuration Release --no-restore
+   dotnet run --project DataManagement/src/DataManagement.WebAPI/DataManagement.API.csproj
+   ```
 
-- ✅ **Fixed Build Issues**: Resolved NETSDK1022 errors with duplicate compile items
-- ✅ **Bug Fixes**: Fixed critical bug in CustomerRepository.Update() method
-- ✅ **Error Handling**: Added comprehensive error handling and validation
-- ✅ **HTTP Status Codes**: Proper status codes for all API responses
-- ✅ **Input Validation**: Null checks and business rule validation
-- ✅ **Resource Management**: Proper disposal patterns
+5. Open the development URL shown by `dotnet run`, followed by `/swagger`.
 
-## Contributing
+The checked-in `appsettings.json` contains only a local placeholder. For secrets, prefer an
+environment variable, .NET user secrets, or a deployment secret store.
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+## Important limitations
 
-## License
+- This repository has no known Azure deployment dependency.
+- It contains no authentication or authorization.
+- Customer SQL objects are referenced by code but are not provided by the numbered scripts.
+- Product CRUD is intentionally incomplete.
+- Repository methods are synchronous and intended for demonstration rather than scale.
+- No license has been granted; the repository's public visibility does not itself grant reuse
+  rights.
 
-This project is for demonstration purposes.
+See [API-Best-Practices.md](API-Best-Practices.md) for general design notes and
+[SECURITY.md](SECURITY.md) for safe-use guidance.

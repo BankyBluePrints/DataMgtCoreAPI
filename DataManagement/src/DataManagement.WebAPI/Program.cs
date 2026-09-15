@@ -1,47 +1,58 @@
-﻿using DataManagement.Business;
+using DataManagement.Business;
 using DataManagement.Business.Interfaces;
 using DataManagement.Entities;
 using DataManagement.Repository;
 using DataManagement.Repository.Interfaces;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddSwaggerGen(options =>
 {
-	c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
-	{
-		Title = "DataManagement API",
-		Version = "v1",
-		Description = "REST API for managing users, customers, and products"
-	});
-	var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
-	var xmlPath = System.IO.Path.Combine(AppContext.BaseDirectory, xmlFile);
-	if (System.IO.File.Exists(xmlPath))
-	{
-		c.IncludeXmlComments(xmlPath);
-	}
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "DataManagement API",
+        Version = "v1",
+        Description = "Educational API for managing users, customers, and products"
+    });
+
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        options.IncludeXmlComments(xmlPath);
+    }
 });
 
-// DI registrations (previously in Startup)
+var connectionString = builder.Configuration.GetConnectionString("MyConnection")
+    ?? throw new InvalidOperationException(
+        "ConnectionStrings:MyConnection is required. "
+        + "Set ConnectionStrings__MyConnection in the environment."
+    );
+
 builder.Services.AddTransient<IUserManager, UserManager>();
-builder.Services.AddTransient<IUserRepository, UserRepository>();
-builder.Services.AddTransient<IRepository<Customer>, CustomerRepository>();
-builder.Services.AddTransient<IRepository<Product>, ProductRepository>();
+builder.Services.AddTransient<IUserRepository>(_ => new UserRepository(connectionString));
+builder.Services.AddTransient<IRepository<Customer>>(
+    _ => new CustomerRepository(connectionString)
+);
+builder.Services.AddTransient<IRepository<Product>>(
+    _ => new ProductRepository(connectionString)
+);
 
 var app = builder.Build();
 
-// Enable Swagger UI
-app.UseSwagger();
-app.UseSwaggerUI(options =>
+if (app.Environment.IsDevelopment())
 {
-	options.SwaggerEndpoint("/swagger/v1/swagger.json", "DataManagement API v1");
-});
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "DataManagement API v1");
+    });
+}
 
 app.UseHttpsRedirection();
-
 app.MapControllers();
 
 app.Run();

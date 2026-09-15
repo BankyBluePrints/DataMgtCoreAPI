@@ -44,3 +44,22 @@ TestResult.xml
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+# User-specific IDE state
+*.suo
+*.rsuser
+*.userprefs
+
+# Local configuration and secrets
+appsettings.*.local.json
+.env
+.env.*
+!.env.example
+
+# Test and coverage output
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# OS/editor files
+.idea/
